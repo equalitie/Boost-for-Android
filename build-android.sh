@@ -545,6 +545,9 @@ echo "Building boost for android for $ARCH"
          -j$NCPU                      \
          target-os=${TARGET_OS}       \
          toolset=${TOOLSET_ARCH}      \
+         architecture=arm             \
+         abi=aapcs                    \
+         binary-format=elf            \
          $cflags                      \
          $cxxflags                    \
          link=static                  \
