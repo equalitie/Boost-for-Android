@@ -114,6 +114,12 @@ do_prefix () {
     fi
 }
 
+LAYOUT=versioned
+register_option "--layout=<layout>" select_toolchain "Pass --layout argument to bjam (default is --layout=versioned)"
+select_toolchain () {
+    LAYOUT=$1
+}
+
 ARCHLIST=
 register_option "--arch=<list>" do_arch "Comma separated list of architectures to build: arm64-v8a,armeabi,armeabi-v7a,mips,mips64,x86,x86_64"
 do_arch () {
@@ -533,7 +539,7 @@ echo "Building boost for android for $ARCH"
          $cxxflags                    \
          link=static                  \
          threading=multi              \
-         --layout=versioned           \
+         --layout=$LAYOUT             \
          $WITHOUT_LIBRARIES           \
          -sICONV_PATH=`pwd`/../libiconv-libicu-android/$ARCH \
          -sICU_PATH=`pwd`/../libiconv-libicu-android/$ARCH \
