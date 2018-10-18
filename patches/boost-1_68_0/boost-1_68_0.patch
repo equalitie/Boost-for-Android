@@ -66,3 +66,55 @@ diff -u -r boost_1_68_0.orig/libs/filesystem/src/operations.cpp boost_1_68_0/lib
  typedef int err_t;
  
  //  POSIX uses a 0 return to indicate success
+diff -r -U 0 boost_1_68_0.orig/tools/build/src/user-config.jam boost_1_68_0/tools/build/src/user-config.jam
+--- boost_1_68_0.orig/tools/build/src/user-config.jam	2018-10-18 12:04:22.647367675 +0200
++++ boost_1_68_0/tools/build/src/user-config.jam	2018-10-18 12:26:39.936872808 +0200
+@@ -44,0 +45,7 @@
++using zlib : 1.2.11
++:
++<name>libz
++<include>$(AndroidNDKRoot)/sysroot/usr/include
++<search>$(AndroidNDKRoot)/platforms/android-21/arch-arm/usr/lib ;
++
++# --------------------------------------------------------------------
+diff -r -U 0 boost_1_68_0.orig/tools/build/src/build/ac.jam boost_1_68_0/tools/build/src/build/ac.jam
+--- boost_1_68_0.orig/tools/build/src/build/ac.jam	2018-08-01 22:50:54.000000000 +0200
++++ boost_1_68_0/tools/build/src/build/ac.jam	2018-10-18 12:25:37.320264287 +0200
+@@ -121,6 +121,31 @@
+-            if [ UPDATE_NOW $(jam-targets) : [ modules.peek configure : .log-fd ]
+-                    : ignore-minus-n ]
+-            {
+-                result = $(name) $(link-opts[1]) ;
+-                names-iter = ; link-opts = ; # break
+-            }
++            ###########################################
++            # Note: dirty hack for Boost-for-Android to support zlib (and
++            # possibly other libs). The commented code below tries to build a
++            # simple "int main() {}" executable while linking it with the
++            # $(name) library. The actual commands look like this:
++            #
++            # https://pastebin.com/Y8NQMU4B
++            #
++            # Unfortunately linking always fails because for some reason the
++            # clang++ command tries to use the system's /usr/bin/ld linker.
++            # I was unable to find a way to instruct clang++ from the NDK
++            # to use the proper linker. However, I first create a proper
++            # "standalone toolchain" as explained here:
++            #
++            # https://developer.android.com/ndk/guides/standalone_toolchain
++            #
++            # and then use the clang++ from there, then the mini program is
++            # linked without errors. (We should probably consider using
++            # standalone toolchain for Boost-for-Android).
++            #<<<<<<<<< Original code
++            #if [ UPDATE_NOW $(jam-targets) : [ modules.peek configure : .log-fd ]
++            #        : ignore-minus-n ]
++            #{
++            #    result = $(name) $(link-opts[1]) ;
++            #    names-iter = ; link-opts = ; # break
++            #}
++            #=========
++            result = $(name) $(link-opts[1]) ;
++            names-iter = ; link-opts = ; # break
++            #>>>>>>>>> Modified code
++
